@@ -55,6 +55,7 @@ public class ShowConnectInfo extends AppCompatActivity {
         openBlueTooth(mContext, false);
 
 
+        startScan();
     }
 
 
@@ -126,5 +127,59 @@ public class ShowConnectInfo extends AppCompatActivity {
     /**
      * 扫描设备
      */
+    // 开始扫描
+    @SuppressLint("MissingPermission")
+    private void startScan() {
+        if (bluetoothLeScanner == null) {
+            bluetoothLeScanner = bluetooth4Adapter.getBluetoothLeScanner();
+        }
+
+        if (scanCallback == null) {
+            scanCallback = new ScanCallback() {
+                @Override
+                public void onScanResult(int callbackType, ScanResult result) {
+                    // 处理扫描到的BLE设备
+                    BluetoothDevice device = result.getDevice();
+                    if (device!=null){
+                        @SuppressLint("MissingPermission") String deviceName = device.getName();
+                        String deviceAddress = device.getAddress();
+
+
+
+                        // 扫描到设备后的处理逻辑
+                        Toast.makeText(mContext, "扫描到设备后的处理逻辑", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+                @Override
+                public void onScanFailed(int errorCode) {
+                    // 扫描失败的处理逻辑
+                    Toast.makeText(mContext, "扫描失败的处理逻辑", Toast.LENGTH_SHORT).show();
+
+                }
+            };
+        }
+
+        // 开始扫描
+        handler.postDelayed(new Runnable() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void run() {
+                mScanning = false;
+                bluetoothLeScanner.stopScan(scanCallback);
+            }
+        }, SCAN_PERIOD);
+
+        mScanning = true;
+        bluetoothLeScanner.startScan(scanCallback);
+    }
+
+    // 停止扫描
+    @SuppressLint("MissingPermission")
+    private void stopScan() {
+        mScanning = false;
+        bluetoothLeScanner.stopScan(scanCallback);
+    }
 
 }
