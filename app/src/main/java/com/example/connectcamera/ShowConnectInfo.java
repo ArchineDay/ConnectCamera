@@ -2,30 +2,25 @@ package com.example.connectcamera;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.annotation.SuppressLint;
-import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.content.BroadcastReceiver;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.connectcamera.ble.BleManager;
-import com.example.connectcamera.ble.OnDeviceSearchListener;
 
 public class ShowConnectInfo extends AppCompatActivity {
 
@@ -39,10 +34,12 @@ public class ShowConnectInfo extends AppCompatActivity {
     private Handler handler;
 
     // Stops scanning after 10 seconds.
+    // 定义扫描时间
     private static final long SCAN_PERIOD = 10000;
 
-    private static final int DISCOVERY_DEVICE = 0x0A;
-    private static final int DISCOVERY_OUT_TIME = 0x0B;
+    // 初始化蓝牙设备扫描器
+    private BluetoothLeScanner bluetoothLeScanner;
+    private ScanCallback scanCallback;
 
 
     @Override
@@ -56,9 +53,6 @@ public class ShowConnectInfo extends AppCompatActivity {
 
         //打开蓝牙
         openBlueTooth(mContext, false);
-
-        //搜索
-        searchBtDevice();
 
 
     }
@@ -124,6 +118,7 @@ public class ShowConnectInfo extends AppCompatActivity {
         } else {
             Log.d(TAG, "手机蓝牙状态已开");
             Toast.makeText(this, "手机蓝牙状态已开", Toast.LENGTH_SHORT).show();
+
         }
 
     }
@@ -131,40 +126,5 @@ public class ShowConnectInfo extends AppCompatActivity {
     /**
      * 扫描设备
      */
-    private void searchBtDevice() {
-        if(bleManager == null){
-            Log.d(TAG, "searchBtDevice()-->bleManager == null");
-            Toast.makeText(this, "searchBtDevice()-->bleManager == null", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (bleManager.isDiscovery()) { //当前正在搜索设备...
-            bleManager.stopDiscoveryDevice();
-        }
-
-        //开始搜索
-        bleManager.startDiscoveryDevice(onDeviceSearchListener,15000);
-    }
-
-    //扫描结果回调
-    private OnDeviceSearchListener onDeviceSearchListener = new OnDeviceSearchListener() {
-
-        @Override
-        public void onDeviceFound(BLEDevice bleDevice) {
-            Message message = new Message();
-            message.what = DISCOVERY_DEVICE;
-            message.obj = bleDevice;
-            handler.sendMessage(message);
-        }
-
-        @Override
-        public void onDiscoveryOutTime() {
-            Message message = new Message();
-            message.what = DISCOVERY_OUT_TIME;
-            handler.sendMessage(message);
-        }
-    };
-
-
 
 }
