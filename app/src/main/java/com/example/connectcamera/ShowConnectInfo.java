@@ -13,11 +13,20 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -28,8 +37,9 @@ public class ShowConnectInfo extends AppCompatActivity {
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetooth4Adapter;
 
-    public Context mContext;
+    ListView listView;
 
+    public Context mContext;
 
     private boolean scanning;
     private Handler handler = new Handler();
@@ -41,6 +51,8 @@ public class ShowConnectInfo extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_connect_info);
+
+        listView = findViewById(R.id.list_view);
 
         mContext = ShowConnectInfo.this;
         //初始化
@@ -100,7 +112,7 @@ public class ShowConnectInfo extends AppCompatActivity {
      * @param isFast true表示直接打开，false提示用户打开
      */
     @SuppressLint("MissingPermission")
-    public BluetoothAdapter openBlueTooth(Context context, boolean isFast) {
+    public void openBlueTooth(Context context, boolean isFast) {
         if (!isEnable()) {
             if (isFast) {
                 Log.d(TAG, "直接打开手机蓝牙");
@@ -118,8 +130,6 @@ public class ShowConnectInfo extends AppCompatActivity {
             Log.d(TAG, "手机蓝牙状态已开");
             Toast.makeText(this, "手机蓝牙状态已开", Toast.LENGTH_SHORT).show();
         }
-        return bluetooth4Adapter;
-
     }
 
     /**
@@ -128,6 +138,9 @@ public class ShowConnectInfo extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     private void searchBtDevice() {
         BluetoothLeScanner bluetoothLeScanner = bluetooth4Adapter.getBluetoothLeScanner();
+
+        //LeDeviceListAdapter leDeviceListAdapter = new LeDeviceListAdapter();
+
         ScanCallback scanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
@@ -136,9 +149,18 @@ public class ShowConnectInfo extends AppCompatActivity {
                 // 扫描到设备后的操作
                 String deviceName = device.getName();
                 String deviceAddress = device.getAddress();
-                Log.d(TAG, "deviceScan-------------->" + "deviceName" + deviceName + ",deviceAddress" + deviceAddress);
+
+                //扫描到的设备如果不为空，打印出来
+                if (deviceName != null && deviceName.length() > 0) {
+                    Log.d(TAG, "deviceScan-------------->" + "deviceName: " + deviceName + ",deviceAddress: " + deviceAddress);
+                }
+
+//                leDeviceListAdapter.addDevice(result.getDevice());
+//                leDeviceListAdapter.notifyDataSetChanged();
+
             }
         };
+
 
         ScanSettings scanSettings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -147,7 +169,7 @@ public class ShowConnectInfo extends AppCompatActivity {
         List<ScanFilter> scanFilters = new ArrayList<>();
 
 
-        if (!scanning){
+        if (!scanning) {
             // Stops scanning after a predefined scan period.
             handler.postDelayed(new Runnable() {
                 @Override
@@ -157,14 +179,97 @@ public class ShowConnectInfo extends AppCompatActivity {
                 }
             }, SCAN_PERIOD);
 
-            scanning =true;
+            scanning = true;
             bluetoothLeScanner.startScan(scanFilters, scanSettings, scanCallback);
-        }else {
-            scanning=false;
+        } else {
+            scanning = false;
             bluetoothLeScanner.stopScan(scanCallback);
         }
 
+    }
+
+
+//
+//    //盛放扫描到的设备
+//    private class LeDeviceListAdapter extends BaseAdapter {
+//        private final ArrayList<BluetoothDevice> mLeDevices;
+//        private final LayoutInflater mInflator;
+//
+//        public LeDeviceListAdapter() {
+//            super();
+//            mLeDevices = new ArrayList<BluetoothDevice>();
+//            mInflator = ShowConnectInfo.this.getLayoutInflater();
+//        }
+//
+//        public void addDevice(BluetoothDevice device) {
+//            if(!mLeDevices.contains(device)) {
+//                mLeDevices.add(device);
+//            }
+//        }
+//
+//        public BluetoothDevice getDevice(int position) {
+//            return mLeDevices.get(position);
+//        }
+//
+//        public void clear() {
+//            mLeDevices.clear();
+//        }
+//
+//        @Override
+//        public int getCount() {
+//            return mLeDevices.size();
+//        }
+//
+//        @Override
+//        public Object getItem(int i) {
+//            return mLeDevices.get(i);
+//        }
+//
+//        @Override
+//        public long getItemId(int i) {
+//            return i;
+//        }
+//
+//        @Override
+//        public View getView(int i, View view, ViewGroup viewGroup) {
+//
+//            ViewHolder viewHolder;
+//            // General ListView optimization code.
+//            if (view == null) {
+//                view = mInflator.inflate(R.layout.activity_show_connect_info, null);
+//                viewHolder = new ViewHolder();
+//                viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
+//                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+//                view.setTag(viewHolder);
+//            } else {
+//                viewHolder = (ViewHolder) view.getTag();
+//            }
+//
+//            BluetoothDevice device = mLeDevices.get(i);
+//            @SuppressLint("MissingPermission") final String deviceName = device.getName();
+//            if (deviceName != null && deviceName.length() > 0)
+//                viewHolder.deviceName.setText(deviceName);
+//            else
+//                viewHolder.deviceName.setText(R.string.unknown_device);
+//            viewHolder.deviceAddress.setText(device.getAddress());
+//
+//            return view;
+//        }
+//    }
+//
+//    static class ViewHolder {
+//        TextView deviceName;
+//        TextView deviceAddress;
+//    }
+
+    /**
+     * 连接设备
+     */
+    public void connectBLE() {
+
+
 
     }
+
 
 }
