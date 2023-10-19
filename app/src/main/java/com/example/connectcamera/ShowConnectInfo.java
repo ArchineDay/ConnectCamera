@@ -30,16 +30,13 @@ public class ShowConnectInfo extends AppCompatActivity {
 
     public Context mContext;
 
-//    private static final int REQUEST_ENABLE_BT = 1;
-//
-//    private boolean mScanning;
-//    private Handler handler;
-//
-//    // Stops scanning after 10 seconds.
-//    private static final long SCAN_PERIOD = 10000;
-//
-//    private static final int DISCOVERY_DEVICE = 0x0A;
-//    private static final int DISCOVERY_OUT_TIME = 0x0B;
+
+    private boolean scanning;
+    private Handler handler = new Handler();
+
+    // Stops scanning after 10 seconds.
+    private static final long SCAN_PERIOD = 10000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,9 +127,7 @@ public class ShowConnectInfo extends AppCompatActivity {
      */
     @SuppressLint("MissingPermission")
     private void searchBtDevice() {
-
         BluetoothLeScanner bluetoothLeScanner = bluetooth4Adapter.getBluetoothLeScanner();
-
         ScanCallback scanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
@@ -141,7 +136,7 @@ public class ShowConnectInfo extends AppCompatActivity {
                 // 扫描到设备后的操作
                 String deviceName = device.getName();
                 String deviceAddress = device.getAddress();
-                Log.d(TAG, "deviceScan-------------->"+"deviceName"+deviceName+",deviceAddress"+deviceAddress);
+                Log.d(TAG, "deviceScan-------------->" + "deviceName" + deviceName + ",deviceAddress" + deviceAddress);
             }
         };
 
@@ -150,7 +145,25 @@ public class ShowConnectInfo extends AppCompatActivity {
                 .build();
 
         List<ScanFilter> scanFilters = new ArrayList<>();
-        bluetoothLeScanner.startScan(scanFilters, scanSettings, scanCallback);
+
+
+        if (!scanning){
+            // Stops scanning after a predefined scan period.
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    scanning = false;
+                    bluetoothLeScanner.stopScan(scanCallback);
+                }
+            }, SCAN_PERIOD);
+
+            scanning =true;
+            bluetoothLeScanner.startScan(scanFilters, scanSettings, scanCallback);
+        }else {
+            scanning=false;
+            bluetoothLeScanner.stopScan(scanCallback);
+        }
+
 
     }
 
