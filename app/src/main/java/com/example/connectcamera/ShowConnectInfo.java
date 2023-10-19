@@ -2,30 +2,26 @@ package com.example.connectcamera;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import android.annotation.SuppressLint;
-import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.content.BroadcastReceiver;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.connectcamera.ble.BleManager;
-import com.example.connectcamera.ble.OnDeviceSearchListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShowConnectInfo extends AppCompatActivity {
 
@@ -34,17 +30,16 @@ public class ShowConnectInfo extends AppCompatActivity {
 
     public Context mContext;
 
-    private BleManager bleManager;
-    private boolean mScanning;
-    private Handler handler;
-
-    // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 10000;
-
-    private static final int DISCOVERY_DEVICE = 0x0A;
-    private static final int DISCOVERY_OUT_TIME = 0x0B;
-
-
+//    private static final int REQUEST_ENABLE_BT = 1;
+//
+//    private boolean mScanning;
+//    private Handler handler;
+//
+//    // Stops scanning after 10 seconds.
+//    private static final long SCAN_PERIOD = 10000;
+//
+//    private static final int DISCOVERY_DEVICE = 0x0A;
+//    private static final int DISCOVERY_OUT_TIME = 0x0B;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +55,6 @@ public class ShowConnectInfo extends AppCompatActivity {
         //搜索
         searchBtDevice();
 
-
     }
 
 
@@ -75,9 +69,11 @@ public class ShowConnectInfo extends AppCompatActivity {
      * @param context 上下文
      * @return true--支持4.0  false--不支持4.0
      */
+    @SuppressLint("ServiceCast")
     public boolean checkBle(Context context) {
 
         bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+
         if (bluetoothManager == null) {
             return false;
         }
@@ -107,7 +103,7 @@ public class ShowConnectInfo extends AppCompatActivity {
      * @param isFast true表示直接打开，false提示用户打开
      */
     @SuppressLint("MissingPermission")
-    public void openBlueTooth(Context context, boolean isFast) {
+    public BluetoothAdapter openBlueTooth(Context context, boolean isFast) {
         if (!isEnable()) {
             if (isFast) {
                 Log.d(TAG, "直接打开手机蓝牙");
@@ -125,46 +121,37 @@ public class ShowConnectInfo extends AppCompatActivity {
             Log.d(TAG, "手机蓝牙状态已开");
             Toast.makeText(this, "手机蓝牙状态已开", Toast.LENGTH_SHORT).show();
         }
+        return bluetooth4Adapter;
 
     }
 
     /**
      * 扫描设备
      */
+    @SuppressLint("MissingPermission")
     private void searchBtDevice() {
-        if(bleManager == null){
-            Log.d(TAG, "searchBtDevice()-->bleManager == null");
-            Toast.makeText(this, "searchBtDevice()-->bleManager == null", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        if (bleManager.isDiscovery()) { //当前正在搜索设备...
-            bleManager.stopDiscoveryDevice();
-        }
+        BluetoothLeScanner bluetoothLeScanner = bluetooth4Adapter.getBluetoothLeScanner();
 
-        //开始搜索
-        bleManager.startDiscoveryDevice(onDeviceSearchListener,15000);
+        ScanCallback scanCallback = new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                // 处理扫描到的BLE设备
+                BluetoothDevice device = result.getDevice();
+                // 扫描到设备后的操作
+                String deviceName = device.getName();
+                String deviceAddress = device.getAddress();
+                Log.d(TAG, "deviceScan-------------->"+"deviceName"+deviceName+",deviceAddress"+deviceAddress);
+            }
+        };
+
+        ScanSettings scanSettings = new ScanSettings.Builder()
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .build();
+
+        List<ScanFilter> scanFilters = new ArrayList<>();
+        bluetoothLeScanner.startScan(scanFilters, scanSettings, scanCallback);
+
     }
-
-    //扫描结果回调
-    private OnDeviceSearchListener onDeviceSearchListener = new OnDeviceSearchListener() {
-
-        @Override
-        public void onDeviceFound(BLEDevice bleDevice) {
-            Message message = new Message();
-            message.what = DISCOVERY_DEVICE;
-            message.obj = bleDevice;
-            handler.sendMessage(message);
-        }
-
-        @Override
-        public void onDiscoveryOutTime() {
-            Message message = new Message();
-            message.what = DISCOVERY_OUT_TIME;
-            handler.sendMessage(message);
-        }
-    };
-
-
 
 }
