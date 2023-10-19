@@ -153,7 +153,14 @@ public class ShowConnectInfo extends AppCompatActivity {
                 //扫描到的设备如果不为空，打印出来
                 if (deviceName != null && deviceName.length() > 0) {
                     Log.d(TAG, "deviceScan-------------->" + "deviceName: " + deviceName + ",deviceAddress: " + deviceAddress);
+                    //将上述信息添加到listView中
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(ShowConnectInfo.this, android.R.layout.simple_list_item_1, new String[]{deviceName, deviceAddress});
+                    adapter.notifyDataSetChanged();
+                    listView.setAdapter(adapter);
+
+                    //device.connectGatt(this, false, gattCallback);
                 }
+
 
 //                leDeviceListAdapter.addDevice(result.getDevice());
 //                leDeviceListAdapter.notifyDataSetChanged();
@@ -188,84 +195,12 @@ public class ShowConnectInfo extends AppCompatActivity {
 
     }
 
-
-//
-//    //盛放扫描到的设备
-//    private class LeDeviceListAdapter extends BaseAdapter {
-//        private final ArrayList<BluetoothDevice> mLeDevices;
-//        private final LayoutInflater mInflator;
-//
-//        public LeDeviceListAdapter() {
-//            super();
-//            mLeDevices = new ArrayList<BluetoothDevice>();
-//            mInflator = ShowConnectInfo.this.getLayoutInflater();
-//        }
-//
-//        public void addDevice(BluetoothDevice device) {
-//            if(!mLeDevices.contains(device)) {
-//                mLeDevices.add(device);
-//            }
-//        }
-//
-//        public BluetoothDevice getDevice(int position) {
-//            return mLeDevices.get(position);
-//        }
-//
-//        public void clear() {
-//            mLeDevices.clear();
-//        }
-//
-//        @Override
-//        public int getCount() {
-//            return mLeDevices.size();
-//        }
-//
-//        @Override
-//        public Object getItem(int i) {
-//            return mLeDevices.get(i);
-//        }
-//
-//        @Override
-//        public long getItemId(int i) {
-//            return i;
-//        }
-//
-//        @Override
-//        public View getView(int i, View view, ViewGroup viewGroup) {
-//
-//            ViewHolder viewHolder;
-//            // General ListView optimization code.
-//            if (view == null) {
-//                view = mInflator.inflate(R.layout.activity_show_connect_info, null);
-//                viewHolder = new ViewHolder();
-//                viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
-//                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
-//                view.setTag(viewHolder);
-//            } else {
-//                viewHolder = (ViewHolder) view.getTag();
-//            }
-//
-//            BluetoothDevice device = mLeDevices.get(i);
-//            @SuppressLint("MissingPermission") final String deviceName = device.getName();
-//            if (deviceName != null && deviceName.length() > 0)
-//                viewHolder.deviceName.setText(deviceName);
-//            else
-//                viewHolder.deviceName.setText(R.string.unknown_device);
-//            viewHolder.deviceAddress.setText(device.getAddress());
-//
-//            return view;
-//        }
-//    }
-//
-//    static class ViewHolder {
-//        TextView deviceName;
-//        TextView deviceAddress;
-//    }
-
     /**
      * 连接设备
      */
     public void connectBLE() {
+        //连接设备
+
 
 
 
