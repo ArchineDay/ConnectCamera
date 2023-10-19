@@ -47,12 +47,13 @@ public class ShowConnectInfo extends AppCompatActivity {
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_connect_info);
 
-        listView = findViewById(R.id.list_view);
+        listView = findViewById(R.id.recycler_view);
 
         mContext = ShowConnectInfo.this;
         //初始化
@@ -200,8 +201,6 @@ public class ShowConnectInfo extends AppCompatActivity {
      */
     public void connectBLE() {
         //连接设备
-
-
 
 
     }
