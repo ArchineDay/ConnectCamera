@@ -43,4 +43,10 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="label_device_address" />
+    <string name="label_state" />
+    <string name="disconnected" />
+    <string name="label_data" />
+    <string name="no_data" />
+    <string name="unknown_device" />
 </resources>

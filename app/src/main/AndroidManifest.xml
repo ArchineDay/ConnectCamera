@@ -2,18 +2,39 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 应用使用蓝牙的权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <!--启动设备发现或操作蓝牙设置的权限-->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <!--位置权限-->
-    <!--Android 10以上系统，需要ACCESS_FINE_LOCATION-->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <!--Android 9以及以下系统，需要ACCESS_FINE_LOCATION-->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+<!--    <uses-permission android:name="android.permission.BLUETOOTH" />-->
+<!--    &lt;!&ndash; 应用使用蓝牙的权限 &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH"/>-->
+<!--    &lt;!&ndash;启动设备发现或操作蓝牙设置的权限&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>-->
+<!--    &lt;!&ndash;位置权限&ndash;&gt;-->
+<!--    &lt;!&ndash;Android 10以上系统，需要ACCESS_FINE_LOCATION&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>-->
+<!--    &lt;!&ndash;Android 9以及以下系统，需要ACCESS_FINE_LOCATION&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />-->
 
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+<!--    <uses-permission android:name="android.permission.BLUETOOTH"-->
+<!--        android:maxSdkVersion="30" />-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"-->
+<!--        android:maxSdkVersion="30" />-->
+
+    <!--maxSdkVersion=30适配到Android11 -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!--Android12新增蓝牙权限 -->
+    <!-- Android 12在不申请定位权限时，必须加上android:usesPermissionFlags="neverForLocation"，否则搜不到设备 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <application
         android:allowBackup="true"

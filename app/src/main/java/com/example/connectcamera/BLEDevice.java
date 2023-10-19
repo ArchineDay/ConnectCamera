@@ -7,11 +7,11 @@ public class BLEDevice {
 
     private BluetoothDevice bluetoothDevice;//设备
 
-    private int RSSI;//蓝牙信号
+    private String  address;//蓝牙信号
 
-    public BLEDevice(BluetoothDevice bluetoothDevice, int RSSI) {
+    public BLEDevice(BluetoothDevice bluetoothDevice, String  address) {
         this.bluetoothDevice = bluetoothDevice;
-        this.RSSI = RSSI;
+        this.address = address;
     }
 
     public BluetoothDevice getBluetoothDevice() {
@@ -22,12 +22,12 @@ public class BLEDevice {
         this.bluetoothDevice = bluetoothDevice;
     }
 
-    public int getRSSI() {
-        return RSSI;
+    public String getAddress() {
+        return address;
     }
 
-    public void setRSSI(int RSSI) {
-        this.RSSI = RSSI;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
 }
