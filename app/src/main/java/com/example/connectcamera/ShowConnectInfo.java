@@ -3,6 +3,8 @@ package com.example.connectcamera;
 import static android.content.ContentValues.TAG;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -30,7 +32,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ShowConnectInfo extends AppCompatActivity {
 
@@ -38,6 +43,7 @@ public class ShowConnectInfo extends AppCompatActivity {
     private BluetoothAdapter bluetooth4Adapter;
 
     ListView listView;
+    RecyclerView recyclerView;
 
     public Context mContext;
 
@@ -53,7 +59,9 @@ public class ShowConnectInfo extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_connect_info);
 
-        listView = findViewById(R.id.recycler_view);
+        listView = findViewById(R.id.list_view);
+
+        recyclerView = findViewById(R.id.recycler_view);
 
         mContext = ShowConnectInfo.this;
         //初始化
@@ -140,9 +148,10 @@ public class ShowConnectInfo extends AppCompatActivity {
     private void searchBtDevice() {
         BluetoothLeScanner bluetoothLeScanner = bluetooth4Adapter.getBluetoothLeScanner();
 
-        //LeDeviceListAdapter leDeviceListAdapter = new LeDeviceListAdapter();
-
         ScanCallback scanCallback = new ScanCallback() {
+            ArrayList<BLEDevice> bleDeviceArrayList = new ArrayList<>();
+            HashMap<String,BLEDevice> hashMap = new HashMap<String,BLEDevice>();
+
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 // 处理扫描到的BLE设备
@@ -151,21 +160,27 @@ public class ShowConnectInfo extends AppCompatActivity {
                 String deviceName = device.getName();
                 String deviceAddress = device.getAddress();
 
-                //扫描到的设备如果不为空，打印出来
+                BLEDevice bleDevice = new BLEDevice(deviceName, deviceAddress);
+
+                //扫描到的设备如果不为空
                 if (deviceName != null && deviceName.length() > 0) {
+
+                    hashMap.put(deviceAddress,bleDevice);//通过地址来判断是否重复
+
+                    bleDeviceArrayList.clear();
+                    bleDeviceArrayList.addAll(hashMap.values());
+
+                    RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(ShowConnectInfo.this, bleDeviceArrayList);
+                    recyclerView.setAdapter(recyclerViewAdapter);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(ShowConnectInfo.this));
+
                     Log.d(TAG, "deviceScan-------------->" + "deviceName: " + deviceName + ",deviceAddress: " + deviceAddress);
+
                     //将上述信息添加到listView中
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(ShowConnectInfo.this, android.R.layout.simple_list_item_1, new String[]{deviceName, deviceAddress});
-                    adapter.notifyDataSetChanged();
-                    listView.setAdapter(adapter);
-
-                    //device.connectGatt(this, false, gattCallback);
+//                    ArrayAdapter<String> adapter = new ArrayAdapter<>(ShowConnectInfo.this, android.R.layout.simple_list_item_1, list1);
+//                    adapter.notifyDataSetChanged();
+//                    listView.setAdapter(adapter);
                 }
-
-
-//                leDeviceListAdapter.addDevice(result.getDevice());
-//                leDeviceListAdapter.notifyDataSetChanged();
-
             }
         };
 
@@ -195,7 +210,6 @@ public class ShowConnectInfo extends AppCompatActivity {
         }
 
     }
-
     /**
      * 连接设备
      */

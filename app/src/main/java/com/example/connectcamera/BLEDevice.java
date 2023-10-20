@@ -5,21 +5,21 @@ import android.bluetooth.BluetoothDevice;
 
 public class BLEDevice {
 
-    private BluetoothDevice bluetoothDevice;//设备
+    private String name;//设备名称
 
-    private String  address;//蓝牙信号
+    private String address;//地址
 
-    public BLEDevice(BluetoothDevice bluetoothDevice, String  address) {
-        this.bluetoothDevice = bluetoothDevice;
+    public BLEDevice(String name, String address) {
+        this.name = name;
         this.address = address;
     }
 
-    public BluetoothDevice getBluetoothDevice() {
-        return bluetoothDevice;
+    public String getName() {
+        return name;
     }
 
-    public void setBluetoothDevice(BluetoothDevice bluetoothDevice) {
-        this.bluetoothDevice = bluetoothDevice;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getAddress() {
@@ -29,5 +29,4 @@ public class BLEDevice {
     public void setAddress(String address) {
         this.address = address;
     }
-
 }
