@@ -2,9 +2,7 @@ package com.example.connectcamera;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +11,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     Button blueConnectBtn;
     Button wifiConnectBtn;
+
+    RecyclerViewAdapter recyclerViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +37,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        Intent intent = new Intent();
-        intent.setClass(this, ShowConnectInfo.class);
-        startActivity(intent);
+        if (v.getId()== R.id.blueConnect) {
+            //跳转到蓝牙连接界面
+            Intent intent = new Intent();
+            intent.setClass(this, BLEServiceActivity.class);
+            startActivity(intent);
+        } else if (v.getId() == R.id.wifiConnect) {
+            //跳转到wifi连接界面
+            Intent intent = new Intent();
+            intent.setClass(this, WIFIServiceActivity.class);
+            startActivity(intent);
+        }
+
 
     }
 }

@@ -2,10 +2,6 @@ package com.example.connectcamera;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -15,55 +11,51 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class ShowConnectInfo extends AppCompatActivity {
+public class BLEServiceActivity extends AppCompatActivity {
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetooth4Adapter;
 
-    ListView listView;
-    RecyclerView recyclerView;
+    // ListView listView;
+    private RecyclerViewAdapter recyclerViewAdapter;
+
+    private RecyclerView recyclerView;
 
     public Context mContext;
 
     private boolean scanning;
     private Handler handler = new Handler();
-
-    // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_show_connect_info);
+        setContentView(R.layout.activity_bleservice);
 
-        listView = findViewById(R.id.list_view);
+        //listView = findViewById(R.id.list_view);
 
         recyclerView = findViewById(R.id.recycler_view);
 
-        mContext = ShowConnectInfo.this;
+        recyclerViewAdapter=new RecyclerViewAdapter(this, new ArrayList<BLEDevice>());
+
+        mContext = BLEServiceActivity.this;
         //初始化
         initBle(mContext);
 
@@ -72,6 +64,8 @@ public class ShowConnectInfo extends AppCompatActivity {
 
         //搜索
         searchBtDevice();
+
+        connectBLE();
 
     }
 
@@ -150,7 +144,7 @@ public class ShowConnectInfo extends AppCompatActivity {
 
         ScanCallback scanCallback = new ScanCallback() {
             ArrayList<BLEDevice> bleDeviceArrayList = new ArrayList<>();
-            HashMap<String,BLEDevice> hashMap = new HashMap<String,BLEDevice>();
+            HashMap<String, BLEDevice> hashMap = new HashMap<String, BLEDevice>();
 
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
@@ -165,14 +159,14 @@ public class ShowConnectInfo extends AppCompatActivity {
                 //扫描到的设备如果不为空
                 if (deviceName != null && deviceName.length() > 0) {
 
-                    hashMap.put(deviceAddress,bleDevice);//通过地址来判断是否重复
+                    hashMap.put(deviceAddress, bleDevice);//通过地址来判断是否重复
 
                     bleDeviceArrayList.clear();
                     bleDeviceArrayList.addAll(hashMap.values());
 
-                    RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(ShowConnectInfo.this, bleDeviceArrayList);
+                    RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(BLEServiceActivity.this, bleDeviceArrayList);
                     recyclerView.setAdapter(recyclerViewAdapter);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(ShowConnectInfo.this));
+                    recyclerView.setLayoutManager(new LinearLayoutManager(BLEServiceActivity.this));
 
                     Log.d(TAG, "deviceScan-------------->" + "deviceName: " + deviceName + ",deviceAddress: " + deviceAddress);
 
@@ -210,11 +204,20 @@ public class ShowConnectInfo extends AppCompatActivity {
         }
 
     }
+
     /**
      * 连接设备
      */
     public void connectBLE() {
         //连接设备
+        //设置点击事件
+        recyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                //连接设备
+                Toast.makeText(BLEServiceActivity.this, "连接设备", Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
     }

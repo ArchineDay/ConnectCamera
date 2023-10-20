@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,7 +19,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private Context context;
 
     private ArrayList<BLEDevice> bleDevices;
-    //private HashSet<BLEDevice> bleDevices;
+
+    //声明自定义的监听接口
+    private static OnItemClickListener mOnItemClickListener;
+
+    //定义接口点击事件
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);//单击
+    }
+
+    //设置接口的接收方法
+    public void setOnItemClickListener(OnItemClickListener listener){
+        mOnItemClickListener = listener;
+    }
+
 
     public RecyclerViewAdapter(Context context, ArrayList<BLEDevice> bleDevices) {
         this.context=context;
@@ -36,7 +50,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.MyViewHolder holder, int position) {
         holder.deviceName.setText(bleDevices.get(position).getName());
         holder.deviceAddress.setText(bleDevices.get(position).getAddress());
-
     }
 
     @Override
@@ -44,15 +57,24 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return this.bleDevices.size();
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    public  class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView deviceName;
         TextView deviceAddress;
+        int position;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-
             deviceName=itemView.findViewById(R.id.device_name);
             deviceAddress=itemView.findViewById(R.id.device_address);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mOnItemClickListener!=null){
+                        mOnItemClickListener.onItemClick(v,position);
+                    }
+                }
+            });
         }
     }
 
