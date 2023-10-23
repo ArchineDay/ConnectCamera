@@ -6,7 +6,12 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -14,7 +19,6 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -26,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.connectcamera.BLEDevice;
+import com.example.connectcamera.BluetoothLEManager;
 import com.example.connectcamera.R;
 import com.example.connectcamera.RecyclerViewAdapter;
 
@@ -40,6 +45,8 @@ public class BLEActivity extends AppCompatActivity {
 
     // ListView listView;
     private RecyclerViewAdapter recyclerViewAdapter;
+
+    private BluetoothDevice bluetoothDevice;
 
     private RecyclerView recyclerView;
     ArrayList<BLEDevice> bleDeviceArrayList = new ArrayList<>();
@@ -150,7 +157,7 @@ public class BLEActivity extends AppCompatActivity {
      * 扫描设备
      */
     @SuppressLint("MissingPermission")
-    private void searchBtDevice() {
+    private BluetoothDevice searchBtDevice() {
         BluetoothLeScanner bluetoothLeScanner = bluetooth4Adapter.getBluetoothLeScanner();
 
         recyclerViewAdapter = new RecyclerViewAdapter(BLEActivity.this, bleDeviceArrayList);
@@ -162,10 +169,10 @@ public class BLEActivity extends AppCompatActivity {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 // 处理扫描到的BLE设备
-                BluetoothDevice device = result.getDevice();
+                bluetoothDevice = result.getDevice();
                 // 扫描到设备后的操作
-                String deviceName = device.getName();
-                String deviceAddress = device.getAddress();
+                String deviceName = bluetoothDevice.getName();
+                String deviceAddress = bluetoothDevice.getAddress();
 
                 BLEDevice bleDevice = new BLEDevice(deviceName, deviceAddress);
 
@@ -210,25 +217,35 @@ public class BLEActivity extends AppCompatActivity {
             scanning = false;
             bluetoothLeScanner.stopScan(scanCallback);
         }
-
+        return bluetoothDevice;
     }
 
     /**
      * 连接设备
      */
+    @SuppressLint("MissingPermission")
     public void connectBLE() {
         //连接设备
         //设置点击事件
         recyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-               //tipDialog();
+                //tipDialog();
                 Log.d(TAG, "你点击了第" + position + "个设备");
                 Toast.makeText(BLEActivity.this, "你点击了第" + position + "个设备", Toast.LENGTH_SHORT).show();
                 tipDialog(bleDeviceArrayList.get(position).getName());
+
+                //连接设备
+                if (bluetoothDevice != null) {
+                    new BluetoothLEManager(BLEActivity.this).connectToDevice(bluetoothDevice.getAddress());
+                } else {
+                    Toast.makeText(BLEActivity.this, "附近暂无BLE设备", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         recyclerView.setAdapter(recyclerViewAdapter);
+
+
 
     }
 
@@ -238,7 +255,7 @@ public class BLEActivity extends AppCompatActivity {
     public void tipDialog(String deviceName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(BLEActivity.this);
         builder.setTitle("连接蓝牙：");
-        builder.setMessage("是否连接至"+deviceName+"？");
+        builder.setMessage("是否连接至" + deviceName + "？");
         //builder.setIcon(R.mipmap.ic_launcher_round);
         //点击对话框外的区域让对话框消失
         builder.setCancelable(true);
