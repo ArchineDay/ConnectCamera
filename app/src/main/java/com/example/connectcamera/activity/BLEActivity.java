@@ -1,8 +1,9 @@
-package com.example.connectcamera;
+package com.example.connectcamera.activity;
 
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -13,6 +14,7 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -23,11 +25,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.connectcamera.BLEDevice;
+import com.example.connectcamera.R;
+import com.example.connectcamera.RecyclerViewAdapter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class BLEServiceActivity extends AppCompatActivity {
+public class BLEActivity extends AppCompatActivity {
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetooth4Adapter;
@@ -36,6 +42,7 @@ public class BLEServiceActivity extends AppCompatActivity {
     private RecyclerViewAdapter recyclerViewAdapter;
 
     private RecyclerView recyclerView;
+    ArrayList<BLEDevice> bleDeviceArrayList = new ArrayList<>();
 
     public Context mContext;
 
@@ -47,15 +54,10 @@ public class BLEServiceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bleservice);
+        setContentView(R.layout.activity_bleinfo);
 
-        //listView = findViewById(R.id.list_view);
+        bindView();
 
-        recyclerView = findViewById(R.id.recycler_view);
-
-        recyclerViewAdapter=new RecyclerViewAdapter(this, new ArrayList<BLEDevice>());
-
-        mContext = BLEServiceActivity.this;
         //初始化
         initBle(mContext);
 
@@ -65,8 +67,18 @@ public class BLEServiceActivity extends AppCompatActivity {
         //搜索
         searchBtDevice();
 
+        //连接
         connectBLE();
 
+    }
+
+    private void bindView() {
+
+        mContext = BLEActivity.this;
+
+        recyclerView = findViewById(R.id.recycler_view);
+
+        recyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<BLEDevice>());
     }
 
 
@@ -123,7 +135,6 @@ public class BLEServiceActivity extends AppCompatActivity {
                 bluetooth4Adapter.enable();
             } else {
                 Log.d(TAG, "提示用户去打开手机蓝牙");
-
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 context.startActivity(enableBtIntent);
 
@@ -142,8 +153,10 @@ public class BLEServiceActivity extends AppCompatActivity {
     private void searchBtDevice() {
         BluetoothLeScanner bluetoothLeScanner = bluetooth4Adapter.getBluetoothLeScanner();
 
+        recyclerViewAdapter = new RecyclerViewAdapter(BLEActivity.this, bleDeviceArrayList);
+
         ScanCallback scanCallback = new ScanCallback() {
-            ArrayList<BLEDevice> bleDeviceArrayList = new ArrayList<>();
+
             HashMap<String, BLEDevice> hashMap = new HashMap<String, BLEDevice>();
 
             @Override
@@ -164,16 +177,11 @@ public class BLEServiceActivity extends AppCompatActivity {
                     bleDeviceArrayList.clear();
                     bleDeviceArrayList.addAll(hashMap.values());
 
-                    RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(BLEServiceActivity.this, bleDeviceArrayList);
+
                     recyclerView.setAdapter(recyclerViewAdapter);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(BLEServiceActivity.this));
+                    recyclerView.setLayoutManager(new LinearLayoutManager(BLEActivity.this));
 
                     Log.d(TAG, "deviceScan-------------->" + "deviceName: " + deviceName + ",deviceAddress: " + deviceAddress);
-
-                    //将上述信息添加到listView中
-//                    ArrayAdapter<String> adapter = new ArrayAdapter<>(ShowConnectInfo.this, android.R.layout.simple_list_item_1, list1);
-//                    adapter.notifyDataSetChanged();
-//                    listView.setAdapter(adapter);
                 }
             }
         };
@@ -214,12 +222,40 @@ public class BLEServiceActivity extends AppCompatActivity {
         recyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                //连接设备
-                Toast.makeText(BLEServiceActivity.this, "连接设备", Toast.LENGTH_SHORT).show();
+               //tipDialog();
+                Log.d(TAG, "你点击了第" + position + "个设备");
+                Toast.makeText(BLEActivity.this, "你点击了第" + position + "个设备", Toast.LENGTH_SHORT).show();
+                tipDialog(bleDeviceArrayList.get(position).getName());
             }
         });
+        recyclerView.setAdapter(recyclerViewAdapter);
 
+    }
 
+    /**
+     * 提示框
+     */
+    public void tipDialog(String deviceName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(BLEActivity.this);
+        builder.setTitle("连接蓝牙：");
+        builder.setMessage("是否连接至"+deviceName+"？");
+        //builder.setIcon(R.mipmap.ic_launcher_round);
+        //点击对话框外的区域让对话框消失
+        builder.setCancelable(true);
+
+        //设置正面按钮
+        builder.setPositiveButton("确定", (dialog, which) -> {
+            Toast.makeText(BLEActivity.this, "你点击了确定", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        //设置反面按钮
+        builder.setNegativeButton("取消", (dialog, which) -> {
+            Toast.makeText(BLEActivity.this, "你点击了取消", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        builder.show();
     }
 
 

@@ -1,10 +1,12 @@
-package com.example.connectcamera;
+package com.example.connectcamera.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class WIFIServiceActivity extends AppCompatActivity {
+import com.example.connectcamera.R;
+
+public class WIFIActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -49,4 +49,6 @@
     <string name="label_data" />
     <string name="no_data" />
     <string name="unknown_device" />
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="connect_fragment">connect fragment</string>
 </resources>

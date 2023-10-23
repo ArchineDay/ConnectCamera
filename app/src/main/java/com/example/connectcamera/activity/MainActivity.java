@@ -1,4 +1,4 @@
-package com.example.connectcamera;
+package com.example.connectcamera.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import com.example.connectcamera.R;
+import com.example.connectcamera.RecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -40,14 +43,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId()== R.id.blueConnect) {
             //跳转到蓝牙连接界面
             Intent intent = new Intent();
-            intent.setClass(this, BLEServiceActivity.class);
+            intent.setClass(this, BLEActivity.class);
             startActivity(intent);
         } else if (v.getId() == R.id.wifiConnect) {
             //跳转到wifi连接界面
             Intent intent = new Intent();
-            intent.setClass(this, WIFIServiceActivity.class);
+            intent.setClass(this, WIFIActivity.class);
             startActivity(intent);
         }
+
+
 
 
     }

@@ -9,6 +9,8 @@ public class BLEDevice {
 
     private String address;//地址
 
+    private int id;
+
     public BLEDevice(String name, String address) {
         this.name = name;
         this.address = address;
