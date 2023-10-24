@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.clj.fastble.data.BleDevice;
 import com.example.connectcamera.activity.BLEActivity;
 
 import java.util.ArrayList;
@@ -56,10 +57,22 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.deviceName.setText(bleDevices.get(position).getName());
         holder.deviceAddress.setText(bleDevices.get(position).getAddress());
 
-        holder.position = position + 1;//设置position
+        holder.position = position;//设置position
 
     }
+    public void addDevice(BleDevice bleDevice) {
+        removeDevice(bleDevice);
+        bleDevices.add(new BLEDevice(bleDevice.getName(),bleDevice.getMac()));
+    }
 
+    public void removeDevice(BleDevice bleDevice) {
+        for (int i = 0; i < bleDevices.size(); i++) {
+            BLEDevice device = bleDevices.get(i);
+            if (bleDevice.getName().equals(device.getName())) {
+                bleDevices.remove(i);
+            }
+        }
+    }
     @Override //返回子项个数
     public int getItemCount() {
         return this.bleDevices.size();

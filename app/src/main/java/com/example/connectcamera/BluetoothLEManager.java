@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 import java.util.UUID;
 
@@ -20,6 +21,20 @@ public class BluetoothLEManager {
     private BluetoothGatt bluetoothGatt;
     private BluetoothGattCharacteristic characteristic;
     private Handler handler;
+
+    private String  WIFI_SVR_UUID_1  = "0000ffb0-0000-1000-8000-00805f9b34fb";
+    private String WIFI_CONTROL_UUID_1 = "0000ffb1-0000-1000-8000-00805f9b34fb";
+
+    private byte[] WIFI_WAKEUP_VALUE_1 = new byte[]{
+            (byte) 'T',
+            (byte) 'C',
+            (byte) 'W',
+            (byte) 'A',
+            (byte) 'K',
+            (byte) 'E',
+            (byte) 'U',
+            (byte) 'P'
+    };
 
     private String serviceUUID,readUUID,writeUUID;
 
@@ -42,9 +57,11 @@ public class BluetoothLEManager {
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
                     // 连接成功，开始发现服务
+                    Log.d("BLE", "连接成功，开始发现服务");
                     gatt.discoverServices();
                 } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                     // 连接断开，释放资源
+                    Log.d("BLE", "连接断开，释放资源");
                     closeGatt();
                 }
             }
@@ -53,9 +70,9 @@ public class BluetoothLEManager {
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                         // 服务发现成功，获取特征值
-                    BluetoothGattService service = gatt.getService(UUID.fromString(serviceUUID));
+                    BluetoothGattService service = gatt.getService(UUID.fromString(WIFI_SVR_UUID_1));
                     if (service != null) {
-                        characteristic = service.getCharacteristic(UUID.fromString(writeUUID));
+                        characteristic = service.getCharacteristic(UUID.fromString(WIFI_CONTROL_UUID_1));
                     } else {
                         // 未找到指定的服务
 
