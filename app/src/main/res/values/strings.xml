@@ -6,9 +6,9 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-<!--    <string name="connect_fail">连接失败</string>-->
+    <string name="connect_fail">连接失败</string>
     <string name="active_disconnected">断开了</string>
-<!--    <string name="disconnected">连接断开</string>-->
+    <string name="disconnected">连接断开</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
@@ -48,11 +48,9 @@
     </string>
     <string name="label_device_address" />
     <string name="label_state" />
-    <string name="disconnected" />
     <string name="label_data" />
     <string name="no_data" />
     <string name="unknown_device" />
     <!-- TODO: Remove or change this placeholder text -->
     <string name="connect_fragment">connect fragment</string>
-    <string name="connect_fail">\n\n</string>
 </resources>

@@ -8,11 +8,7 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -35,8 +31,6 @@ import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
-import com.clj.fastble.scan.BleScanRuleConfig;
-import com.example.connectcamera.BLEDevice;
 import com.example.connectcamera.BluetoothLEManager;
 import com.example.connectcamera.R;
 import com.example.connectcamera.RecyclerViewAdapter;
@@ -57,14 +51,13 @@ public class BLEActivity extends AppCompatActivity {
     private BluetoothDevice bluetoothDevice;
 
     private RecyclerView recyclerView;
-    ArrayList<BLEDevice> bleDeviceArrayList = new ArrayList<>();
+    List<BleDevice> bleDeviceArrayList = new ArrayList<>();
 
     private ProgressDialog progressDialog;
 
     private ImageView img_loading;
 
     BleDevice bleDevice;
-
 
     public Context mContext;
 
@@ -90,7 +83,7 @@ public class BLEActivity extends AppCompatActivity {
         searchBtDevice();
 
         //连接
-        connectBLE();
+        //connectBLE();
 
         //connect(bleDevice);
 
@@ -101,8 +94,6 @@ public class BLEActivity extends AppCompatActivity {
         mContext = BLEActivity.this;
 
         recyclerView = findViewById(R.id.recycler_view);
-
-        recyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<BLEDevice>());
 
         img_loading = findViewById(R.id.img_loading);
         progressDialog = new ProgressDialog(this);
@@ -185,7 +176,7 @@ public class BLEActivity extends AppCompatActivity {
 
         ScanCallback scanCallback = new ScanCallback() {
 
-            HashMap<String, BLEDevice> hashMap = new HashMap<String, BLEDevice>();
+            HashMap<String, BleDevice> hashMap = new HashMap<String, BleDevice>();
 
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
@@ -195,8 +186,6 @@ public class BLEActivity extends AppCompatActivity {
                 // 扫描到设备后的操作
                 String deviceName = bluetoothDevice.getName();
                 String deviceAddress = bluetoothDevice.getAddress();
-
-                BLEDevice bleDevice = new BLEDevice(deviceName, deviceAddress);
 
                 //扫描到的设备如果不为空
                 if (deviceName != null && deviceName.length() > 0) {
@@ -245,119 +234,109 @@ public class BLEActivity extends AppCompatActivity {
     /**
      * 连接设备
      */
-    @SuppressLint("MissingPermission")
-    public void connectBLE() {
-        //连接设备
-        //设置点击事件
-        recyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                //tipDialog();
-
-                int pos=position+1;
-                Log.d(TAG, "你点击了第" + pos + "个设备");
-                Toast.makeText(BLEActivity.this, "你点击了第" + pos + "个设备", Toast.LENGTH_SHORT).show();
-                tipDialog(bleDeviceArrayList.get(position).getName());
-
-                //连接设备
-//                if (bluetoothDevice != null) {
-//                    new BluetoothLEManager(BLEActivity.this).connectToDevice(bluetoothDevice.getAddress());
+//    @SuppressLint("MissingPermission")
+//    public void connectBLE() {
+//        //连接设备
+//        //设置点击事件
+//        recyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(View view, int position) {
+//                //tipDialog();
 //
+//                int pos=position+1;
+//                Log.d(TAG, "你点击了第" + pos + "个设备");
+//                Toast.makeText(BLEActivity.this, "你点击了第" + pos + "个设备", Toast.LENGTH_SHORT).show();
+//
+//                //跳转提示框开始连接
+//                tipDialog(bleDeviceArrayList.get(position).getName());
+//            }
+//        });
+//    }
+//
+//    /**
+//     * 提示框
+//     */
+//    public void tipDialog(String deviceName) {
+//
+//        AlertDialog.Builder builder = new AlertDialog.Builder(BLEActivity.this);
+//        builder.setTitle("连接蓝牙：");
+//        builder.setMessage("是否连接至" + deviceName + "？");
+//        //builder.setIcon(R.mipmap.ic_launcher_round);
+//        //点击对话框外的区域让对话框消失
+//        builder.setCancelable(true);
+//
+//        //设置正面按钮
+//        builder.setPositiveButton("确定", (dialog, which) ->
+//
+//        {
+//            Toast.makeText(BLEActivity.this, "你点击了确定", Toast.LENGTH_SHORT).show();
+//
+//            //开始连接
+//            BluetoothLEManager bluetoothLEManager=new BluetoothLEManager(this.mContext);
+//            bluetoothLEManager.connectToDevice(bluetoothDevice.getAddress());
+//
+//
+//            connect(bleDevice);
+//
+//            dialog.dismiss();
+//        });
+//
+//        //设置反面按钮
+//        builder.setNegativeButton("取消", (dialog, which) ->
+//
+//        {
+//            Toast.makeText(BLEActivity.this, "你点击了取消", Toast.LENGTH_SHORT).show();
+//            dialog.dismiss();
+//        });
+//
+//        builder.show();
+//    }
+//
+//    private void connect(final BleDevice bleDevice) {
+//        BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
+//            @Override
+//            public void onStartConnect() {
+//                progressDialog.show();
+//            }
+//
+//            @Override
+//            public void onConnectFail(BleDevice bleDevice, BleException exception) {
+//                img_loading.clearAnimation();
+//                img_loading.setVisibility(View.INVISIBLE);
+//                progressDialog.dismiss();
+//                Toast.makeText(BLEActivity.this, getString(R.string.connect_fail), Toast.LENGTH_LONG).show();
+//            }
+//
+//            @SuppressLint("NotifyDataSetChanged")
+//            @Override
+//            public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
+//                progressDialog.dismiss();
+//               // recyclerViewAdapter.addDevice(bleDevice);
+//                recyclerViewAdapter.notifyDataSetChanged();
+//                //mDeviceAdapter.addDevice(bleDevice);
+//                //mDeviceAdapter.notifyDataSetChanged();
+//            }
+//
+//            @SuppressLint("NotifyDataSetChanged")
+//            @Override
+//            public void onDisConnected(boolean isActiveDisConnected, BleDevice bleDevice, BluetoothGatt gatt, int status) {
+//                progressDialog.dismiss();
+//
+//                //recyclerViewAdapter.removeDevice(bleDevice);
+//                recyclerViewAdapter.notifyDataSetChanged();
+//                //mDeviceAdapter.removeDevice(bleDevice);
+//                //mDeviceAdapter.notifyDataSetChanged();
+//
+//                if (isActiveDisConnected) {
+//                    Toast.makeText(BLEActivity.this, getString(R.string.active_disconnected), Toast.LENGTH_LONG).show();
 //                } else {
-//                    Toast.makeText(BLEActivity.this, "附近暂无BLE设备", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(BLEActivity.this, getString(R.string.disconnected), Toast.LENGTH_LONG).show();
+//                    ObserverManager.getInstance().notifyObserver(bleDevice);
 //                }
-
-            }
-        });
-        recyclerView.setAdapter(recyclerViewAdapter);
-
-
-    }
-
-    /**
-     * 提示框
-     */
-    public void tipDialog(String deviceName) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(BLEActivity.this);
-        builder.setTitle("连接蓝牙：");
-        builder.setMessage("是否连接至" + deviceName + "？");
-        //builder.setIcon(R.mipmap.ic_launcher_round);
-        //点击对话框外的区域让对话框消失
-        builder.setCancelable(true);
-
-        //设置正面按钮
-        builder.setPositiveButton("确定", (dialog, which) ->
-
-        {
-            Toast.makeText(BLEActivity.this, "你点击了确定", Toast.LENGTH_SHORT).show();
-
-            //开始连接
-            BluetoothLEManager bluetoothLEManager=new BluetoothLEManager(this.mContext);
-            bluetoothLEManager.connectToDevice(bluetoothDevice.getAddress());
-
-
-            //connect(bleDevice);
-
-            dialog.dismiss();
-        });
-
-        //设置反面按钮
-        builder.setNegativeButton("取消", (dialog, which) ->
-
-        {
-            Toast.makeText(BLEActivity.this, "你点击了取消", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        });
-
-        builder.show();
-    }
-
-    private void connect(final BleDevice bleDevice) {
-        BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
-            @Override
-            public void onStartConnect() {
-                progressDialog.show();
-            }
-
-            @Override
-            public void onConnectFail(BleDevice bleDevice, BleException exception) {
-                img_loading.clearAnimation();
-                img_loading.setVisibility(View.INVISIBLE);
-                progressDialog.dismiss();
-                Toast.makeText(BLEActivity.this, getString(R.string.connect_fail), Toast.LENGTH_LONG).show();
-            }
-
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
-                progressDialog.dismiss();
-                recyclerViewAdapter.addDevice(bleDevice);
-                recyclerViewAdapter.notifyDataSetChanged();
-                //mDeviceAdapter.addDevice(bleDevice);
-                //mDeviceAdapter.notifyDataSetChanged();
-            }
-
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDisConnected(boolean isActiveDisConnected, BleDevice bleDevice, BluetoothGatt gatt, int status) {
-                progressDialog.dismiss();
-
-                recyclerViewAdapter.removeDevice(bleDevice);
-                recyclerViewAdapter.notifyDataSetChanged();
-                //mDeviceAdapter.removeDevice(bleDevice);
-                //mDeviceAdapter.notifyDataSetChanged();
-
-                if (isActiveDisConnected) {
-                    Toast.makeText(BLEActivity.this, getString(R.string.active_disconnected), Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(BLEActivity.this, getString(R.string.disconnected), Toast.LENGTH_LONG).show();
-                    ObserverManager.getInstance().notifyObserver(bleDevice);
-                }
-
-            }
-        });
-    }
+//
+//            }
+//        });
+//    }
 
 
 }

@@ -29,6 +29,9 @@
         android:theme="@style/Theme.ConnectCamera"
         tools:targetApi="31">
         <activity
+            android:name=".activity.FastBleActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.BleActivity2"
             android:exported="false" />
         <activity

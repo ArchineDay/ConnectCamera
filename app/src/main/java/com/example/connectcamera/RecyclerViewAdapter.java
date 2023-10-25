@@ -18,15 +18,17 @@ import com.example.connectcamera.activity.BLEActivity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.InnerHolder> {
 
     private Context context;
 
-    private ArrayList<BLEDevice> bleDevices;
+    private List bleDevices;
 
     //声明自定义的监听接口
     private static OnItemClickListener mOnItemClickListener;
+
 
     //定义接口点击事件
     public interface OnItemClickListener {
@@ -39,8 +41,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
 
-    public RecyclerViewAdapter(Context context, ArrayList<BLEDevice> bleDevices) {
-        this.context=context;
+    public RecyclerViewAdapter(Context context, List bleDevices) {
+        this.context = context;
         Log.d("RecyclerViewAdapter", "Context: " + context.getClass().getSimpleName());
         this.bleDevices = bleDevices;
     }
@@ -52,31 +54,24 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return new InnerHolder(view);
     }
 
-    @Override //绑定子项数据
-    public void onBindViewHolder(@NonNull RecyclerViewAdapter.InnerHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.deviceName.setText(bleDevices.get(position).getName());
-        holder.deviceAddress.setText(bleDevices.get(position).getAddress());
-
-        holder.position = position;//设置position
-
-    }
-    public void addDevice(BleDevice bleDevice) {
-        removeDevice(bleDevice);
-        bleDevices.add(new BLEDevice(bleDevice.getName(),bleDevice.getMac()));
-    }
-
-    public void removeDevice(BleDevice bleDevice) {
-        for (int i = 0; i < bleDevices.size(); i++) {
-            BLEDevice device = bleDevices.get(i);
-            if (bleDevice.getName().equals(device.getName())) {
-                bleDevices.remove(i);
-            }
-        }
-    }
     @Override //返回子项个数
     public int getItemCount() {
         return this.bleDevices.size();
     }
+
+    @SuppressLint("SetTextI18n")
+    @Override //绑定子项数据
+    public void onBindViewHolder(@NonNull RecyclerViewAdapter.InnerHolder holder, @SuppressLint("RecyclerView") int position) {
+        holder.deviceName.setText(((BleDevice)bleDevices.get(position)).getName());
+        holder.deviceAddress.setText(((BleDevice)bleDevices.get(position)).getMac());
+
+//        holder.deviceName.setText(bleDevices.get(position).toString());
+//        holder.deviceAddress.setText(bleDevices.get(position).toString());
+
+        holder.position = position;//设置position
+
+    }
+
 
     public class InnerHolder extends RecyclerView.ViewHolder {
 
@@ -95,7 +90,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 public void onClick(View v) {
                     if (mOnItemClickListener != null) {
                         mOnItemClickListener.onItemClick(v, position);
-
                     }
                 }
             });

@@ -8,14 +8,8 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.connectcamera.R;
-import com.example.connectcamera.RecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
-    Button blueConnectBtn;
-    Button wifiConnectBtn;
-
-    RecyclerViewAdapter recyclerViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId()== R.id.blueConnect) {
             //跳转到蓝牙连接界面
             Intent intent = new Intent();
-            intent.setClass(this, BLEActivity.class);
+            intent.setClass(this, FastBleActivity.class);
             startActivity(intent);
         } else if (v.getId() == R.id.wifiConnect) {
             //跳转到wifi连接界面
@@ -51,9 +45,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             intent.setClass(this, WIFIActivity.class);
             startActivity(intent);
         }
-
-
-
-
     }
+
+
+
 }
