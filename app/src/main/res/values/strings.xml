@@ -9,6 +9,10 @@
     <string name="connect_fail">连接失败</string>
     <string name="active_disconnected">断开了</string>
     <string name="disconnected">连接断开</string>
+    <string name="connect">连接</string>
+    <string name="connected">已连接</string>
+    <string name="disconnect">断开连接</string>
+    <string name="enter">进入操作</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

@@ -1,5 +1,6 @@
 package com.example.connectcamera.activity;
 
+import static android.app.ProgressDialog.show;
 import static android.content.ContentValues.TAG;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.content.Context;
@@ -15,6 +18,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.clj.fastble.BleManager;
@@ -45,6 +49,10 @@ public class FastBleActivity extends AppCompatActivity {
     private RecyclerViewAdapter recyclerViewAdapter;
 
     List<BleDevice> bleDeviceList;
+
+    AlertDialog alertDialog;
+
+    private boolean isScanning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +93,8 @@ public class FastBleActivity extends AppCompatActivity {
     public void initView() {
         //初始化控件
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view1);
+        alertDialog = new AlertDialog.Builder(FastBleActivity.this).create();
+
     }
 
     @SuppressLint("MissingPermission")
@@ -109,7 +119,7 @@ public class FastBleActivity extends AppCompatActivity {
 //                .setDeviceName(true, names)         // 只扫描指定广播名的设备，可选
 //                .setDeviceMac(mac)                  // 只扫描指定mac的设备，可选
                 .setAutoConnect(false)      // 连接时的autoConnect参数，可选，默认false
-                .setScanTimeOut(10000)              // 扫描超时时间，可选，默认10秒
+                .setScanTimeOut(5000)              // 扫描超时时间，可选，默认10秒
                 .build();
         BleManager.getInstance().initScanRule(scanRuleConfig);
 
@@ -124,6 +134,7 @@ public class FastBleActivity extends AppCompatActivity {
             @Override
             public void onLeScan(BleDevice bleDevice) {
                 //Log.d("MainActivity2", "onLeScan: " + bleDevice);
+
             }
 
             @Override
@@ -131,7 +142,8 @@ public class FastBleActivity extends AppCompatActivity {
                 if (bleDevice.getName() != null) {
                     Log.d(TAG, "onScanning------" + "deviceName: " + bleDevice.getName() + ",deviceAddress: " + bleDevice.getMac());
                 }
-                Toast.makeText(mContext, "正在扫描中", Toast.LENGTH_SHORT).show();
+                    alertDialog.setMessage("正在扫描中...");
+                    alertDialog.show();
             }
 
             @Override
@@ -140,19 +152,20 @@ public class FastBleActivity extends AppCompatActivity {
 
                 if (scanResultList.size() == 0) {
                     Toast.makeText(FastBleActivity.this, "未扫描到设备", Toast.LENGTH_SHORT).show();
-                }
-                else if (scanResultList.size() > 0) {
+                } else if (scanResultList.size() > 0) {
                     Toast.makeText(FastBleActivity.this, "扫描到" + scanResultList.size() + "个设备", Toast.LENGTH_SHORT).show();
+                    //关闭正在扫描提示框
+                    alertDialog.dismiss();
                     //处理scanResultList
                     HashMap<String, BleDevice> deviceHashMap = new HashMap<>();
                     for (BleDevice bleDevice : scanResultList) {
                         //过滤掉设备名为空的设备
-                        if (bleDevice.getName() != null&&bleDevice.getName().length()>0){
+                        if (bleDevice.getName() != null && bleDevice.getName().length() > 0) {
                             deviceHashMap.put(bleDevice.getMac(), bleDevice);
                         }
                     }
                     scanResultList.clear();
-                    bleDeviceList =scanResultList;
+                    bleDeviceList = scanResultList;
                     bleDeviceList.addAll(deviceHashMap.values());
 
                     //添加设备至recyclerView
@@ -164,15 +177,14 @@ public class FastBleActivity extends AppCompatActivity {
         });
     }
 
-    public void selectDevice(){
+    public void selectDevice() {
         recyclerViewAdapter = new RecyclerViewAdapter(FastBleActivity.this, bleDeviceList);
         recyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 BleDevice bleDevice = bleDeviceList.get(position);
-                int pos=position+1;
+                int pos = position + 1;
                 Log.d(TAG, "你点击了第" + pos + "个设备");
-                Toast.makeText(FastBleActivity.this, "你点击了第" + pos + "个设备", Toast.LENGTH_SHORT).show();
 
                 //跳转提示框开始连接
                 tipDialog(bleDevice);
@@ -192,48 +204,48 @@ public class FastBleActivity extends AppCompatActivity {
         //设置正面按钮
         builder.setPositiveButton("确定", (dialog, which) ->
         {
-            Toast.makeText(FastBleActivity.this, "你点击了确定", Toast.LENGTH_SHORT).show();
-
             //开始连接
             connectDevice(bleDevice);
-
             dialog.dismiss();
         });
-
         //设置反面按钮
         builder.setNegativeButton("取消", (dialog, which) ->
-
-        {
-            Toast.makeText(FastBleActivity.this, "你点击了取消", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        });
-
+                dialog.dismiss());
         builder.show();
     }
 
 
-    public void connectDevice(BleDevice bleDevice){
+    public void connectDevice(BleDevice bleDevice) {
         BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
             @Override
             public void onStartConnect() {
                 Log.i(TAG, "onStartConnect: ");
-
+                alertDialog.setMessage("正在连接中...");
+                alertDialog.show();
             }
 
             @Override
             public void onConnectFail(BleDevice bleDevice, BleException e) {
                 Log.i(TAG, "onConnectFail: " + e.toString());
-
+                alertDialog.dismiss();
+                Toast.makeText(FastBleActivity.this, "连接失败，请5s后重试", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
-                Log.i(TAG, "onConnectSuccess: "+bleDevice.getName()+"连接成功"+"mac地址："+bleDevice.getMac()+"status："+status);
+                Log.i(TAG, "onConnectSuccess: " + bleDevice.getName() + "连接成功" + "mac地址：" + bleDevice.getMac() + "status：" + status);
+                alertDialog.dismiss();
+                //连接成功后跳转至操作界面
+                Intent intent = new Intent(FastBleActivity.this, OperationActivity.class);
+                //传递当前bleDevice
+                intent.putExtra("bleDevice", bleDevice);
+                startActivity(intent);
             }
 
             @Override
             public void onDisConnected(boolean isActiveDisConnected, BleDevice bleDevice, BluetoothGatt gatt, int status) {
-                Log.i(TAG, "onDisConnected: "+bleDevice.getName()+"连接断开"+"mac地址："+bleDevice.getMac()+"status："+status);
+                Log.i(TAG, "onDisConnected: " + bleDevice.getName() + "连接断开" + "mac地址：" + bleDevice.getMac() + "status：" + status);
+                Toast.makeText(FastBleActivity.this, "连接已断开", Toast.LENGTH_SHORT).show();
             }
         });
     }
