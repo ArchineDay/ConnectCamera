@@ -7,7 +7,7 @@
 
     android:orientation="vertical"
 
-    tools:context=".activity.BLEActivity">
+    tools:context=".deprecated.BLEActivity">
 
 
     <TextView

@@ -38,7 +38,7 @@
             android:name=".activity.WIFIActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.BLEActivity"
+            android:name=".deprecated.BLEActivity"
             android:exported="false" />
         <activity
             android:name=".activity.MainActivity"

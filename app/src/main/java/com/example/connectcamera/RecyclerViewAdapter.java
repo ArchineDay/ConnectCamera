@@ -1,23 +1,18 @@
 package com.example.connectcamera;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.clj.fastble.data.BleDevice;
-import com.example.connectcamera.activity.BLEActivity;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.InnerHolder> {

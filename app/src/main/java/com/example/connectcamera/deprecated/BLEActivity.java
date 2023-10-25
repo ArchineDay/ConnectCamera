@@ -1,4 +1,4 @@
-package com.example.connectcamera.activity;
+package com.example.connectcamera.deprecated;
 
 import static android.content.ContentValues.TAG;
 
@@ -7,7 +7,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
@@ -27,19 +26,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.clj.fastble.BleManager;
-import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.data.BleDevice;
-import com.clj.fastble.exception.BleException;
-import com.example.connectcamera.BluetoothLEManager;
 import com.example.connectcamera.R;
 import com.example.connectcamera.RecyclerViewAdapter;
-import com.example.connectcamera.comm.ObserverManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+/**
+ * deprecated 蓝牙连接
+ */
 public class BLEActivity extends AppCompatActivity {
 
     private BluetoothManager bluetoothManager;
@@ -276,7 +272,7 @@ public class BLEActivity extends AppCompatActivity {
             bluetoothLEManager.connectToDevice(bluetoothDevice.getAddress());
 
 
-            connect(bleDevice);
+//            connect(bleDevice);
 
             dialog.dismiss();
         });
@@ -292,51 +288,51 @@ public class BLEActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void connect(final BleDevice bleDevice) {
-        BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
-            @Override
-            public void onStartConnect() {
-                progressDialog.show();
-            }
-
-            @Override
-            public void onConnectFail(BleDevice bleDevice, BleException exception) {
-                img_loading.clearAnimation();
-                img_loading.setVisibility(View.INVISIBLE);
-                progressDialog.dismiss();
-                Toast.makeText(BLEActivity.this, getString(R.string.connect_fail), Toast.LENGTH_LONG).show();
-            }
-
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
-                progressDialog.dismiss();
-               // recyclerViewAdapter.addDevice(bleDevice);
-                recyclerViewAdapter.notifyDataSetChanged();
-                //mDeviceAdapter.addDevice(bleDevice);
-                //mDeviceAdapter.notifyDataSetChanged();
-            }
-
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDisConnected(boolean isActiveDisConnected, BleDevice bleDevice, BluetoothGatt gatt, int status) {
-                progressDialog.dismiss();
-
-                //recyclerViewAdapter.removeDevice(bleDevice);
-                recyclerViewAdapter.notifyDataSetChanged();
-                //mDeviceAdapter.removeDevice(bleDevice);
-                //mDeviceAdapter.notifyDataSetChanged();
-
-                if (isActiveDisConnected) {
-                    Toast.makeText(BLEActivity.this, getString(R.string.active_disconnected), Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(BLEActivity.this, getString(R.string.disconnected), Toast.LENGTH_LONG).show();
-                    ObserverManager.getInstance().notifyObserver(bleDevice);
-                }
-
-            }
-        });
-    }
+//    private void connect(final BleDevice bleDevice) {
+//        BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
+//            @Override
+//            public void onStartConnect() {
+//                progressDialog.show();
+//            }
+//
+//            @Override
+//            public void onConnectFail(BleDevice bleDevice, BleException exception) {
+//                img_loading.clearAnimation();
+//                img_loading.setVisibility(View.INVISIBLE);
+//                progressDialog.dismiss();
+//                Toast.makeText(BLEActivity.this, getString(R.string.connect_fail), Toast.LENGTH_LONG).show();
+//            }
+//
+//            @SuppressLint("NotifyDataSetChanged")
+//            @Override
+//            public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
+//                progressDialog.dismiss();
+//               // recyclerViewAdapter.addDevice(bleDevice);
+//                recyclerViewAdapter.notifyDataSetChanged();
+//                //mDeviceAdapter.addDevice(bleDevice);
+//                //mDeviceAdapter.notifyDataSetChanged();
+//            }
+//
+//            @SuppressLint("NotifyDataSetChanged")
+//            @Override
+//            public void onDisConnected(boolean isActiveDisConnected, BleDevice bleDevice, BluetoothGatt gatt, int status) {
+//                progressDialog.dismiss();
+//
+//                //recyclerViewAdapter.removeDevice(bleDevice);
+//                recyclerViewAdapter.notifyDataSetChanged();
+//                //mDeviceAdapter.removeDevice(bleDevice);
+//                //mDeviceAdapter.notifyDataSetChanged();
+//
+//                if (isActiveDisConnected) {
+//                    Toast.makeText(BLEActivity.this, getString(R.string.active_disconnected), Toast.LENGTH_LONG).show();
+//                } else {
+//                    Toast.makeText(BLEActivity.this, getString(R.string.disconnected), Toast.LENGTH_LONG).show();
+//                    ObserverManager.getInstance().notifyObserver(bleDevice);
+//                }
+//
+//            }
+//        });
+//    }
 
 
 }

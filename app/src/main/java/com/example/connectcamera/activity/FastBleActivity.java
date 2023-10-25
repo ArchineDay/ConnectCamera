@@ -23,14 +23,20 @@ import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.clj.fastble.scan.BleScanRuleConfig;
-import com.example.connectcamera.BluetoothLEManager;
 import com.example.connectcamera.R;
 import com.example.connectcamera.RecyclerViewAdapter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
+/**
+ * 蓝牙连接界面
+ * 1.初始化蓝牙 openBluTooth(mContext, isFast)
+ * 2.扫描蓝牙  scanDevice()
+ * 3.选择蓝牙 selectDevice()
+ * 3.连接蓝牙 connectDevice()
+ */
 public class FastBleActivity extends AppCompatActivity {
 
     private boolean isFast = false;
