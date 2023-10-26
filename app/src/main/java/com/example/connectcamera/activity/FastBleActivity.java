@@ -13,6 +13,8 @@ import android.app.Notification;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +25,9 @@ import android.widget.Toast;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
+import com.clj.fastble.callback.BleReadCallback;
 import com.clj.fastble.callback.BleScanCallback;
+import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.clj.fastble.scan.BleScanRuleConfig;
@@ -53,6 +57,32 @@ public class FastBleActivity extends AppCompatActivity {
     AlertDialog alertDialog;
 
     private boolean isScanning = false;
+
+    private String serviceUuid;
+    private String characteristicUuid;
+
+    private String WIFI_SVR_UUID_2 = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
+    private String WIFI_CONTROL_UUID_2 = "6E400004-B5A3-F393-E0A9-E50E24DCCA9E";
+
+    private byte[] WIFI_WAKEUP_VALUE_2 = new byte[]{
+            (byte) 'A',
+            (byte) 'T',
+            (byte) '+',
+            (byte) 'W',
+            (byte) 'A',
+            (byte) 'K',
+            (byte) 'E',
+            (byte) 'P',
+            (byte) 'U',
+            (byte) 'L',
+            (byte) 'S',
+            (byte) 'E',
+            (byte) '=',
+            (byte) '1',
+            (byte) '0',
+            (byte) '\r',
+            (byte) '\n'
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,8 +172,8 @@ public class FastBleActivity extends AppCompatActivity {
                 if (bleDevice.getName() != null) {
                     Log.d(TAG, "onScanning------" + "deviceName: " + bleDevice.getName() + ",deviceAddress: " + bleDevice.getMac());
                 }
-                    alertDialog.setMessage("正在扫描中...");
-                    alertDialog.show();
+                alertDialog.setMessage("正在扫描中...");
+                alertDialog.show();
             }
 
             @Override
@@ -240,6 +270,41 @@ public class FastBleActivity extends AppCompatActivity {
                 //传递当前bleDevice
                 intent.putExtra("bleDevice", bleDevice);
                 startActivity(intent);
+//                BluetoothGatt bluetoothGatt = BleManager.getInstance().getBluetoothGatt(bleDevice);
+//                //获取服务
+//                List<BluetoothGattService> serviceList = bluetoothGatt.getServices();
+//                for (BluetoothGattService service : serviceList) {
+//                    Log.i(TAG, "-------onServicesUUIDDiscovered--------: " + service.getUuid().toString());
+//
+//                    serviceUuid = String.valueOf(service.getUuid());
+//
+//                    //获取特征
+//                    List<BluetoothGattCharacteristic> characteristicList = service.getCharacteristics();
+//                    for (BluetoothGattCharacteristic characteristic : characteristicList) {
+//                        Log.i(TAG, "onCharacteristicUUIDDiscovered: " + characteristic.getUuid().toString());
+//                        characteristicUuid = String.valueOf(characteristic.getUuid());
+//                    }
+//                }
+//
+//                BleManager.getInstance().write(
+//                        bleDevice,
+//                        WIFI_SVR_UUID_2,
+//                        WIFI_CONTROL_UUID_2,
+//                        //data,
+//                        WIFI_WAKEUP_VALUE_2,
+//                        new BleWriteCallback() {
+//                            @Override
+//                            public void onWriteSuccess(int current, int total, byte[] justWrite) {
+//                                // 发送数据到设备成功（分包发送的情况下，可以通过方法中返回的参数可以查看发送进度）
+//                                Log.i(TAG, "onWriteSuccess: " + "发送数据到设备成功" + "current:" + current + "total:" + total + "justWrite:" + justWrite.toString());
+//                            }
+//
+//                            @Override
+//                            public void onWriteFailure(BleException exception) {
+//                                // 发送数据到设备失败
+//                                Log.i(TAG, "onWriteFailure: " + "发送数据到设备失败" + exception.toString());
+//                            }
+//                        });
             }
 
             @Override
