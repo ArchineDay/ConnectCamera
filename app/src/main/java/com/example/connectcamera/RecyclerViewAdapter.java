@@ -16,14 +16,11 @@ import com.clj.fastble.data.BleDevice;
 import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.InnerHolder> {
-
     private Context context;
-
     private List bleDevices;
 
     //声明自定义的监听接口
     private static OnItemClickListener mOnItemClickListener;
-
 
     //定义接口点击事件
     public interface OnItemClickListener {
@@ -64,16 +61,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 //        holder.deviceAddress.setText(bleDevices.get(position).toString());
 
         holder.position = position;//设置position
-
     }
 
 
     public class InnerHolder extends RecyclerView.ViewHolder {
-
         TextView deviceName;
         TextView deviceAddress;
         int position;
-
         public InnerHolder(@NonNull View itemView) {
             super(itemView);
             deviceName = itemView.findViewById(R.id.device_name);

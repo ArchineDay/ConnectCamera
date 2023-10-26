@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -21,8 +20,8 @@ import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.example.connectcamera.R;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 
 public class OperationActivity extends AppCompatActivity {
@@ -70,9 +69,19 @@ public class OperationActivity extends AppCompatActivity {
 
         getServiceAndCharacteristics();
 
-        //getIndicateFromBle();
+        getIndicateFromBle();
+
+        try {
+            Thread.sleep(1000); // 休眠1秒
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         writeMessageToBle();
+
+        readMessageFromBle();
+
+
     }
 
     @Override
@@ -81,7 +90,6 @@ public class OperationActivity extends AppCompatActivity {
         //断开蓝牙连接
         Log.i(TAG, "OperationActivity: " + "断开蓝牙连接");
         BleManager.getInstance().disconnect(bleDevice);
-
         //销毁蓝牙管理器
         BleManager.getInstance().destroy();
     }
@@ -126,8 +134,7 @@ public class OperationActivity extends AppCompatActivity {
                     @Override
                     public void onCharacteristicChanged(byte[] data) {
                         // 打开通知后，设备发过来的数据将在这里出现
-                        Log.i(TAG, "onCharacteristicChanged: " + "设备发过来的数据：" + data.toString());
-
+                        Log.i(TAG, "onCharacteristicChanged: " + "设备发过来的数据：" + Arrays.toString(data));
                     }
                 });
 
@@ -148,7 +155,7 @@ public class OperationActivity extends AppCompatActivity {
                     @Override
                     public void onReadSuccess(byte[] data) {
                         // 读特征值数据成功
-                        Log.i(TAG, "onReadSuccess: " + "读特征值数据成功" + data.toString());
+                        Log.i(TAG, "onReadSuccess: " + "读特征值数据成功:" + Arrays.toString(data));
                     }
 
                     @Override
@@ -170,8 +177,7 @@ public class OperationActivity extends AppCompatActivity {
                     @Override
                     public void onWriteSuccess(int current, int total, byte[] justWrite) {
                         // 发送数据到设备成功（分包发送的情况下，可以通过方法中返回的参数可以查看发送进度）
-                        Log.i(TAG, "onWriteSuccess: " + "发送数据到设备成功" + "current:" + current + "total:" + total + "justWrite:" + justWrite.toString());
-
+                        Log.i(TAG, "onWriteSuccess: " + "发送数据到设备成功" + "current:" + current + "total:" + total + "justWrite:" + Arrays.toString(justWrite));
                     }
                     @Override
                     public void onWriteFailure(BleException exception) {

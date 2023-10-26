@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
+import com.clj.fastble.callback.BleIndicateCallback;
 import com.clj.fastble.callback.BleReadCallback;
 import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.callback.BleWriteCallback;
@@ -34,6 +35,7 @@ import com.clj.fastble.scan.BleScanRuleConfig;
 import com.example.connectcamera.R;
 import com.example.connectcamera.RecyclerViewAdapter;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -123,7 +125,7 @@ public class FastBleActivity extends AppCompatActivity {
     public void initView() {
         //初始化控件
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view1);
-        alertDialog = new AlertDialog.Builder(FastBleActivity.this).create();
+        alertDialog = new AlertDialog.Builder(mContext).create();
 
     }
 
@@ -181,9 +183,9 @@ public class FastBleActivity extends AppCompatActivity {
                 Log.d("MainActivity2", "onScanFinished: " + scanResultList.size());
 
                 if (scanResultList.size() == 0) {
-                    Toast.makeText(FastBleActivity.this, "未扫描到设备", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "未扫描到设备", Toast.LENGTH_SHORT).show();
                 } else if (scanResultList.size() > 0) {
-                    Toast.makeText(FastBleActivity.this, "扫描到" + scanResultList.size() + "个设备", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "扫描到" + scanResultList.size() + "个设备", Toast.LENGTH_SHORT).show();
                     //关闭正在扫描提示框
                     alertDialog.dismiss();
                     //处理scanResultList
@@ -199,16 +201,16 @@ public class FastBleActivity extends AppCompatActivity {
                     bleDeviceList.addAll(deviceHashMap.values());
 
                     //添加设备至recyclerView
-                    recyclerViewAdapter = new RecyclerViewAdapter(FastBleActivity.this, bleDeviceList);
+                    recyclerViewAdapter = new RecyclerViewAdapter(mContext, bleDeviceList);
                     recyclerView.setAdapter(recyclerViewAdapter);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(FastBleActivity.this));
+                    recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
                 }
             }
         });
     }
 
     public void selectDevice() {
-        recyclerViewAdapter = new RecyclerViewAdapter(FastBleActivity.this, bleDeviceList);
+        recyclerViewAdapter = new RecyclerViewAdapter(mContext, bleDeviceList);
         recyclerViewAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -224,7 +226,7 @@ public class FastBleActivity extends AppCompatActivity {
 
     public void tipDialog(BleDevice bleDevice) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(FastBleActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle("连接蓝牙：");
         builder.setMessage("是否连接至" + bleDevice.getName() + "？");
         //builder.setIcon(R.mipmap.ic_launcher_round);
@@ -258,59 +260,25 @@ public class FastBleActivity extends AppCompatActivity {
             public void onConnectFail(BleDevice bleDevice, BleException e) {
                 Log.i(TAG, "onConnectFail: " + e.toString());
                 alertDialog.dismiss();
-                Toast.makeText(FastBleActivity.this, "连接失败，请5s后重试", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "连接失败，请5s后重试", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
                 Log.i(TAG, "onConnectSuccess: " + bleDevice.getName() + "连接成功" + "mac地址：" + bleDevice.getMac() + "status：" + status);
                 alertDialog.dismiss();
+                Toast.makeText(mContext, "连接成功", Toast.LENGTH_SHORT).show();
                 //连接成功后跳转至操作界面
-                Intent intent = new Intent(FastBleActivity.this, OperationActivity.class);
-                //传递当前bleDevice
+                Intent intent = new Intent(mContext, OperationActivity.class);
+                //传递当前bleDevice,浅拷贝
                 intent.putExtra("bleDevice", bleDevice);
                 startActivity(intent);
-//                BluetoothGatt bluetoothGatt = BleManager.getInstance().getBluetoothGatt(bleDevice);
-//                //获取服务
-//                List<BluetoothGattService> serviceList = bluetoothGatt.getServices();
-//                for (BluetoothGattService service : serviceList) {
-//                    Log.i(TAG, "-------onServicesUUIDDiscovered--------: " + service.getUuid().toString());
-//
-//                    serviceUuid = String.valueOf(service.getUuid());
-//
-//                    //获取特征
-//                    List<BluetoothGattCharacteristic> characteristicList = service.getCharacteristics();
-//                    for (BluetoothGattCharacteristic characteristic : characteristicList) {
-//                        Log.i(TAG, "onCharacteristicUUIDDiscovered: " + characteristic.getUuid().toString());
-//                        characteristicUuid = String.valueOf(characteristic.getUuid());
-//                    }
-//                }
-//
-//                BleManager.getInstance().write(
-//                        bleDevice,
-//                        WIFI_SVR_UUID_2,
-//                        WIFI_CONTROL_UUID_2,
-//                        //data,
-//                        WIFI_WAKEUP_VALUE_2,
-//                        new BleWriteCallback() {
-//                            @Override
-//                            public void onWriteSuccess(int current, int total, byte[] justWrite) {
-//                                // 发送数据到设备成功（分包发送的情况下，可以通过方法中返回的参数可以查看发送进度）
-//                                Log.i(TAG, "onWriteSuccess: " + "发送数据到设备成功" + "current:" + current + "total:" + total + "justWrite:" + justWrite.toString());
-//                            }
-//
-//                            @Override
-//                            public void onWriteFailure(BleException exception) {
-//                                // 发送数据到设备失败
-//                                Log.i(TAG, "onWriteFailure: " + "发送数据到设备失败" + exception.toString());
-//                            }
-//                        });
             }
 
             @Override
             public void onDisConnected(boolean isActiveDisConnected, BleDevice bleDevice, BluetoothGatt gatt, int status) {
                 Log.i(TAG, "onDisConnected: " + bleDevice.getName() + "连接断开" + "mac地址：" + bleDevice.getMac() + "status：" + status);
-                Toast.makeText(FastBleActivity.this, "连接已断开", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "连接已断开", Toast.LENGTH_SHORT).show();
             }
         });
     }
