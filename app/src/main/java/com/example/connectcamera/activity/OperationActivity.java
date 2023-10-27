@@ -6,10 +6,20 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.net.NetworkSpecifier;
+import android.net.wifi.WifiNetworkSpecifier;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PatternMatcher;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.clj.fastble.BleManager;
@@ -81,7 +91,13 @@ public class OperationActivity extends AppCompatActivity {
 
         readMessageFromBle();
 
-
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                connectWifi("CAM8Z8_003C84C78420", "1234567890", this);
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -147,8 +163,8 @@ public class OperationActivity extends AppCompatActivity {
         BleManager.getInstance().read(
                 bleDevice,
                 "00001800-0000-1000-8000-00805f9b34fb",
-                 "00002a00-0000-1000-8000-00805f9b34fb",
-               // "00002a01-0000-1000-8000-00805f9b34fb",
+                "00002a00-0000-1000-8000-00805f9b34fb",
+                // "00002a01-0000-1000-8000-00805f9b34fb",
 //                "00002a04-0000-1000-8000-00805 f9b34fb",
 //                "00002a06-0000-1000-8000-00805 f9b34fb",
                 new BleReadCallback() {
@@ -165,11 +181,12 @@ public class OperationActivity extends AppCompatActivity {
                     }
                 });
     }
+
     private void writeMessageToBle() {
         BleManager.getInstance().write(
                 bleDevice,
                 "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
-  //              "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+                //              "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
 //                "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
                 "6e400004-b5a3-f393-e0a9-e50e24dcca9e",
                 WIFI_WAKEUP_VALUE_2,
@@ -179,11 +196,46 @@ public class OperationActivity extends AppCompatActivity {
                         // 发送数据到设备成功（分包发送的情况下，可以通过方法中返回的参数可以查看发送进度）
                         Log.i(TAG, "onWriteSuccess: " + "发送数据到设备成功" + "current:" + current + "total:" + total + "justWrite:" + Arrays.toString(justWrite));
                     }
+
                     @Override
                     public void onWriteFailure(BleException exception) {
                         // 发送数据到设备失败
                         Log.i(TAG, "onWriteFailure: " + "发送数据到设备失败" + exception.toString());
                     }
                 });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private boolean connectWifi(String ssid, String pass, Context context) throws InterruptedException {
+
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkSpecifier specifier = new WifiNetworkSpecifier.Builder()
+                .setSsidPattern(new PatternMatcher(ssid, PatternMatcher.PATTERN_PREFIX))
+                .setWpa2Passphrase(pass)
+                .build();
+        //创建一个请求
+        NetworkRequest request = new NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)//创建的是WIFI网络。
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)//网络不受限
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)//信任网络，增加这个连个参数让设备连接wifi之后还联网。
+                .setNetworkSpecifier(specifier)
+                .build();
+        connectivityManager.requestNetwork(request, new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                //TODO 连接OK，做些啥
+                Log.d("WIFIActivity", "onAvailable: " + "连接OK");
+                connectivityManager.bindProcessToNetwork(network);
+            }
+
+            @Override
+            public void onUnavailable() {
+                //TODO 连接失败，或者被用户取消了，做些啥
+                Log.d("WIFIActivity", "onUnavailable: " + "连接失败，或者被用户取消了");
+            }
+        });
+        return false;
     }
 }
