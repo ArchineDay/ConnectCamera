@@ -53,7 +53,7 @@
             android:name=".activity.FastBleActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.WIFIActivity"
+            android:name=".deprecated.WIFIActivity"
             android:exported="false" />
         <activity
             android:name=".activity.MainActivity"

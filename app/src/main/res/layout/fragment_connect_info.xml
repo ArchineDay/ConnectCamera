@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.ConnectInfoFragment">
+    tools:context=".deprecated.fragment.ConnectInfoFragment">
 
     <LinearLayout
         android:id="@+id/connect_info_fragment"

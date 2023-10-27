@@ -1,4 +1,4 @@
-package com.example.connectcamera.fragment;
+package com.example.connectcamera.deprecated.fragment;
 
 import android.os.Bundle;
 

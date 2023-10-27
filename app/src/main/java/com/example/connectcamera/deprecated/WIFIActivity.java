@@ -1,4 +1,4 @@
-package com.example.connectcamera.activity;
+package com.example.connectcamera.deprecated;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;

@@ -227,6 +227,7 @@ public class OperationActivity extends AppCompatActivity {
             public void onAvailable(Network network) {
                 //TODO 连接OK，做些啥
                 Log.d("WIFIActivity", "onAvailable: " + "连接OK");
+
                 connectivityManager.bindProcessToNetwork(network);
             }
 

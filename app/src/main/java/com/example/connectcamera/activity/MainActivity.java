@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.connectcamera.R;
+import com.example.connectcamera.deprecated.WIFIActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
